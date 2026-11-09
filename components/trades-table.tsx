@@ -139,6 +139,14 @@ function SortButton({
   )
 }
 
+function ariaSort(
+  key: SortKey,
+  sort: { key: SortKey; dir: "asc" | "desc" }
+): "ascending" | "descending" | "none" {
+  if (sort.key !== key) return "none"
+  return sort.dir === "asc" ? "ascending" : "descending"
+}
+
 function DetailRow({
   label,
   value,
@@ -238,6 +246,12 @@ export function TradesTable({
     (currentPage - 1) * pageSize,
     currentPage * pageSize
   )
+  const columnCount =
+    6 +
+    (visible.price ? 1 : 0) +
+    (visible.fee ? 1 : 0) +
+    (visible.realized ? 1 : 0) +
+    (visible.source ? 1 : 0)
 
   function toggleSort(key: SortKey) {
     setSort((current) =>
@@ -333,7 +347,7 @@ export function TradesTable({
             <Table>
               <TableHeader className="bg-muted">
                 <TableRow>
-                  <TableHead>
+                  <TableHead aria-sort={ariaSort("symbol", sort)}>
                     <SortButton
                       label="Symbol"
                       sortKey="symbol"

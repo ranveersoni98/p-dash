@@ -3,22 +3,11 @@
 import * as React from "react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import {
-  ArrowLeftRightIcon,
-  BookOpenIcon,
-  BriefcaseBusinessIcon,
-  ChartCandlestickIcon,
-  CirclePlusIcon,
-  CpuIcon,
-  CrosshairIcon,
-  LayoutDashboardIcon,
-  MicroscopeIcon,
-  ReceiptTextIcon,
-  Settings2Icon,
-  TargetIcon,
-} from "lucide-react"
+import { CirclePlusIcon, CrosshairIcon } from "lucide-react"
 
+import { navigationIcon } from "@/components/nav-icons"
 import { NavUser } from "@/components/nav-user"
+import { navigationGroups, secondaryNavigation } from "@/lib/navigation"
 import {
   Sidebar,
   SidebarContent,
@@ -31,80 +20,6 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar"
-
-type NavItem = {
-  title: string
-  url: string
-  icon: React.ReactNode
-  external?: boolean
-}
-
-const navGroups: { label: string; items: NavItem[] }[] = [
-  {
-    label: "Trading",
-    items: [
-      {
-        title: "Overview",
-        url: "/dashboard",
-        icon: <LayoutDashboardIcon />,
-      },
-      {
-        title: "Portfolio",
-        url: "/dashboard/portfolio",
-        icon: <BriefcaseBusinessIcon />,
-      },
-      {
-        title: "Trades",
-        url: "/dashboard/trades",
-        icon: <ArrowLeftRightIcon />,
-      },
-      {
-        title: "Ledger",
-        url: "/dashboard/ledger",
-        icon: <ReceiptTextIcon />,
-      },
-      {
-        title: "Budget",
-        url: "/dashboard/budget",
-        icon: <TargetIcon />,
-      },
-    ],
-  },
-  {
-    label: "Markets",
-    items: [
-      {
-        title: "Market",
-        url: "/dashboard/market",
-        icon: <ChartCandlestickIcon />,
-      },
-      {
-        title: "Research",
-        url: "/dashboard/research",
-        icon: <MicroscopeIcon />,
-      },
-      {
-        title: "Engine",
-        url: "/dashboard/engine",
-        icon: <CpuIcon />,
-      },
-    ],
-  },
-]
-
-const secondaryItems: NavItem[] = [
-  {
-    title: "Settings",
-    url: "/dashboard/settings",
-    icon: <Settings2Icon />,
-  },
-  {
-    title: "API reference",
-    url: "http://localhost:3001/docs",
-    icon: <BookOpenIcon />,
-    external: true,
-  },
-]
 
 function isItemActive(pathname: string, url: string) {
   if (url === "/dashboard") return pathname === "/dashboard"
@@ -162,18 +77,21 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             <SidebarGroupLabel>{group.label}</SidebarGroupLabel>
             <SidebarGroupContent>
               <SidebarMenu>
-                {group.items.map((item) => (
-                  <SidebarMenuItem key={item.title}>
-                    <SidebarMenuButton
-                      tooltip={item.title}
-                      isActive={isItemActive(pathname, item.url)}
-                      render={<Link href={item.url} />}
-                    >
-                      {item.icon}
-                      <span>{item.title}</span>
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
-                ))}
+                {group.items.map((item) => {
+                  const Icon = navigationIcon(item.url)
+                  return (
+                    <SidebarMenuItem key={item.title}>
+                      <SidebarMenuButton
+                        tooltip={item.title}
+                        isActive={isItemActive(pathname, item.url)}
+                        render={<Link href={item.url} />}
+                      >
+                        <Icon />
+                        <span>{item.title}</span>
+                      </SidebarMenuButton>
+                    </SidebarMenuItem>
+                  )
+                })}
               </SidebarMenu>
             </SidebarGroupContent>
           </SidebarGroup>
@@ -183,24 +101,27 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           <SidebarGroupLabel>System</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
-              {secondaryItems.map((item) => (
-                <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton
-                    tooltip={item.title}
-                    isActive={!item.external && isItemActive(pathname, item.url)}
-                    render={
-                      item.external ? (
-                        <a href={item.url} target="_blank" rel="noreferrer" />
-                      ) : (
-                        <Link href={item.url} />
-                      )
-                    }
-                  >
-                    {item.icon}
-                    <span>{item.title}</span>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
+              {secondaryNavigation.map((item) => {
+                const Icon = navigationIcon(item.url)
+                return (
+                  <SidebarMenuItem key={item.title}>
+                    <SidebarMenuButton
+                      tooltip={item.title}
+                      isActive={!item.external && isItemActive(pathname, item.url)}
+                      render={
+                        item.external ? (
+                          <a href={item.url} target="_blank" rel="noreferrer" />
+                        ) : (
+                          <Link href={item.url} />
+                        )
+                      }
+                    >
+                      <Icon />
+                      <span>{item.title}</span>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                )
+              })}
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>

@@ -2,57 +2,35 @@
 
 import { usePathname } from "next/navigation"
 
+import { AutoRefresh } from "@/components/auto-refresh"
+import { CommandPalette } from "@/components/command-palette"
 import { MarketStatus } from "@/components/market-status"
 import { RefreshButton } from "@/components/refresh-button"
 import { ThemeToggle } from "@/components/theme-toggle"
 import { Separator } from "@/components/ui/separator"
 import { SidebarTrigger } from "@/components/ui/sidebar"
+import { pageMeta } from "@/lib/navigation"
 
-const pageMeta: Record<string, { title: string; description: string }> = {
-  "/dashboard": {
-    title: "Overview",
-    description: "Portfolio, P&L and recent fills",
-  },
-  "/dashboard/portfolio": {
-    title: "Portfolio",
-    description: "Live positions and allocation",
-  },
-  "/dashboard/trades": {
-    title: "Trades",
-    description: "Fills, fees and execution history",
-  },
-  "/dashboard/ledger": {
-    title: "Ledger",
-    description: "Cash movements, trades and fees",
-  },
-  "/dashboard/budget": {
-    title: "Budget",
-    description: "Capital target and trading window",
-  },
-  "/dashboard/market": {
-    title: "Market",
-    description: "Quotes, signals and research",
-  },
-  "/dashboard/research": {
-    title: "Research",
-    description: "Macro regime, rankings and fundamentals",
-  },
-  "/dashboard/engine": {
-    title: "Engine",
-    description: "Automation, risk guards and config",
-  },
-  "/dashboard/settings": {
-    title: "Settings",
-    description: "Connection and workspace preferences",
-  },
+function currentPageMeta(pathname: string) {
+  if (pageMeta[pathname]) return pageMeta[pathname]
+
+  const match = Object.entries(pageMeta)
+    .filter(
+      ([url]) => url !== "/dashboard" && pathname.startsWith(`${url}/`)
+    )
+    .sort(([a], [b]) => b.length - a.length)[0]
+
+  return (
+    match?.[1] ?? {
+      title: "Dashboard",
+      description: "Parabellum paper trading",
+    }
+  )
 }
 
 export function SiteHeader() {
   const pathname = usePathname()
-  const meta = pageMeta[pathname] ?? {
-    title: "Dashboard",
-    description: "Parabellum paper trading",
-  }
+  const meta = currentPageMeta(pathname)
 
   return (
     <header className="flex h-(--header-height) shrink-0 items-center gap-2 border-b transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-(--header-height)">
@@ -69,12 +47,14 @@ export function SiteHeader() {
           </p>
         </div>
         <div className="ml-auto flex items-center gap-1">
+          <CommandPalette />
           <MarketStatus />
           <Separator
             orientation="vertical"
             className="mx-1 h-4 data-vertical:self-auto"
           />
           <RefreshButton />
+          <AutoRefresh />
           <ThemeToggle />
         </div>
       </div>
